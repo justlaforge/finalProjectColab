@@ -94,8 +94,14 @@
 	 
 	 GET_TIME(startWork);
  
+	 if(debug==2){
+		printf("Iteration 0:\n");
+		Print_matrix(newMatrix,rows,cols);
+		printf("\n");
+	 }
+
 	 // Loop iterations
-	 for(int o=0; o<n; o++){
+	 for(int o=1; o<=n; o++){
 		 // Loop rows
 		 for(int i=1;i<rows-1;i++){
 			 //Loop Cols
@@ -107,17 +113,25 @@
 				 ) / 9.0;
 				  
 			 }
+			 
 		 }
 
 		 double* temp = matrix;
 		 matrix = newMatrix;
 		 newMatrix = temp;
+
+		 if(debug==2){
+			printf("Iteration %d:\n",o);
+			Print_matrix(matrix,rows,cols);
+			printf("\n");
+		 }
+
 	 }
  
 	 
 	 GET_TIME(finishWork);
  
-	 write_memory_to_file((n % 2 == 0) ? matrix : newMatrix, rows, cols, out);
+	 write_memory_to_file(matrix, rows, cols, out);
 
 	 
  
@@ -132,7 +146,7 @@
   
   
 	 // Open file to write timing data
-	 FILE *timeFile = fopen("serialTime.csv", "w");
+	 FILE *timeFile = fopen("serialTime.csv", "a");
 	 if (!timeFile) {
 		 fprintf(stderr, "Error: Unable to open file 'serialTime' for writing.\n");
 		 return EXIT_FAILURE;
