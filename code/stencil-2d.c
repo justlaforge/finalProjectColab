@@ -35,7 +35,7 @@
  void setArgs(int argc, char **argv, int *n, char **in, char **out, int *debug){
 	 int opt;
  
-	 while((opt = getopt(argc, argv, "n:i:o:v")) != -1){
+	 while((opt = getopt(argc, argv, "n:i:o:v:")) != -1){
 		 switch(opt){
 			 case 'n':
 				 *n = atoi(optarg);
@@ -81,19 +81,21 @@
 	 double *matrix;
 	 double *newMatrix;
 	 int rows, cols;
- 
-	 newMatrix = malloc(n*n*sizeof(double));
+ 	
+	 Read_matrix(in, &matrix, &rows, &cols);
+	
+	 newMatrix = malloc(rows*cols*sizeof(double));
 	 if (newMatrix == NULL) {
 		fprintf(stderr, "Can't allocate storage\n");
 		exit(-1);
 	 }
  
-	 Read_matrix(in, &matrix, &rows, &cols);
+	 
 	 
 	 
 	 GET_TIME(startWork);
  
-	 newMatrix = matrix;
+	 //newMatrix = matrix;
 	 double *temp;
 	 // Loop iterations
 	 for(int o=0; o<n; o++){
@@ -121,8 +123,8 @@
 	 
  
 	 free(matrix);
-	 free(newMatrix);
- 
+	 if (newMatrix != NULL && newMatrix != matrix) free(newMatrix);
+
 	 GET_TIME(finishOvrll);
  
 	 
