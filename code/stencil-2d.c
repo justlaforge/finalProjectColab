@@ -26,6 +26,7 @@
  #include "utilities.c"
  #include <getopt.h>
  #include <time.h>
+ #include <string.h>
  
  void usage(char **argv){
 	 printf("Usage: %s -n <num iters> -i <in file> -o <out file> -d <debug: 0,1,2>\n", argv[0]);
@@ -84,19 +85,15 @@
  	
 	 Read_matrix(in, &matrix, &rows, &cols);
 	
-	 newMatrix = malloc(rows*cols*sizeof(double));
-	 if (newMatrix == NULL) {
+	 newMatrix = malloc(rows * cols * sizeof(double));
+	if (newMatrix == NULL) {
 		fprintf(stderr, "Can't allocate storage\n");
 		exit(-1);
-	 }
- 
-	 
-	 
+	}
+	memcpy(newMatrix, matrix, rows * cols * sizeof(double));	 
 	 
 	 GET_TIME(startWork);
  
-	 //newMatrix = matrix;
-	 double *temp;
 	 // Loop iterations
 	 for(int o=0; o<n; o++){
 		 // Loop rows
@@ -111,7 +108,8 @@
 				  
 			 }
 		 }
-		 temp = matrix;
+
+		 double* temp = matrix;
 		 matrix = newMatrix;
 		 newMatrix = temp;
 	 }
@@ -119,7 +117,8 @@
 	 
 	 GET_TIME(finishWork);
  
-	 write_memory_to_file(matrix,rows,cols,out);
+	 write_memory_to_file((n % 2 == 0) ? matrix : newMatrix, rows, cols, out);
+
 	 
  
 	 free(matrix);
