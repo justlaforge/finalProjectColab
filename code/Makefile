@@ -39,7 +39,7 @@ stencil-2d-pth: stencil-2d-pth.o
 
 	
 stencil-2d-omp.o: stencil-2d-omp.c utilities.h utilities.c 
-	$(CC) $(CFLAGS) -c stencil-2d-omp.c
+	$(CC) $(CFLAGS) -fopenmp -c stencil-2d-omp.c
 
 stencil-2d-omp: stencil-2d-omp.o 
 	$(CC) -o stencil-2d-omp ./stencil-2d-omp.o  $(LFLAGS)
