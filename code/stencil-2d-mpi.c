@@ -147,10 +147,15 @@ int main(int argc, char **argv) {
         local_newMatrix = temp;
 
         if (debug == 2 && rank == 0) {
+            MPI_Gatherv(local_matrix, local_rows * cols, MPI_DOUBLE, matrix, sendcount, displacement, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            printf("Gathered matrix on rank 0 for iteration %d.\n", o);
             printf("Iteration %d:\n", o);
             Print_matrix(matrix, rows, cols);
             printf("\n");
+        } else if (debug == 2) {
+            MPI_Gatherv(local_matrix, local_rows * cols, MPI_DOUBLE, NULL, sendcount, displacement, MPI_DOUBLE, 0, MPI_COMM_WORLD);
         }
+
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -158,6 +163,9 @@ int main(int argc, char **argv) {
 
     if (rank == 0) {
         MPI_Gatherv(local_matrix, local_rows * cols, MPI_DOUBLE, matrix, sendcount, displacement, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        printf("Gathered matrix on rank 0.\n");
+        Print_matrix(matrix, rows, cols);
+        printf("\n");
         write_memory_to_file(matrix, rows, cols, out);
     } else {
         MPI_Gatherv(local_matrix, local_rows * cols, MPI_DOUBLE, NULL, sendcount, displacement, MPI_DOUBLE, 0, MPI_COMM_WORLD);
