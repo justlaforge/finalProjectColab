@@ -28,77 +28,77 @@
  }
  
  // Set arguments
- void setArgs(int argc, char **argv, int *n, char **in, char **out, int *debug){
-	 int opt;
+void setArgs(int argc, char **argv, int *n, char **in, char **out, int *debug){
+	int opt;
  
-	 while((opt = getopt(argc, argv, "n:i:o:v:p:")) != -1){
-		 switch(opt){
-			 case 'n':
-				 *n = atoi(optarg);
-				 break;
-			 case 'i':
-				 *in = optarg;
-				 break;
-			 case 'o':
-				 *out = optarg;
-				 break;
-			 case 'v':
-				 *debug = atoi(optarg);
-				 break;
-             case 'p':
-                 omp_set_num_threads(atoi(optarg));
-                 break;
-			 default:
-				 usage(argv);
-				 exit(1);
-		 }
-	 }
-	 if(*in == NULL ||*out == NULL){
-		 perror("Files -i and -o must be provided");
-		 exit(EXIT_FAILURE);
-	 }
+	while((opt = getopt(argc, argv, "n:i:o:v:p:")) != -1){
+		switch(opt){
+			case 'n':
+				*n = atoi(optarg);
+				break;
+			case 'i':
+				*in = optarg;
+				break;
+			case 'o':
+				*out = optarg;
+				break;
+			case 'v':
+				*debug = atoi(optarg);
+				break;
+            case 'p':
+                omp_set_num_threads(atoi(optarg));
+                break;
+			default:
+				usage(argv);
+				exit(1);
+		}
+	}
+	if(*in == NULL ||*out == NULL){
+		perror("Files -i and -o must be provided");
+		exit(EXIT_FAILURE);
+	}
 	 
 	 
- }
+}
  
- int main(int argc, char **argv){
-	 // ---- Timer Variables ----
-	 double startOvrll=0;
-	 double finishOvrll=0;
-	 double startWork=0;
-	 double finishWork=0;
+int main(int argc, char **argv){
+	// ---- Timer Variables ----
+	double startOvrll=0;
+	double finishOvrll=0;
+	double startWork=0;
+	double finishWork=0;
  
-	 GET_TIME(startOvrll);
+	GET_TIME(startOvrll);
 
-     omp_set_dynamic(0);
+    omp_set_dynamic(0);
 	 
-	 int n=1,debug=0;
-	 char *in = NULL;
-	 char *out = NULL;
+	int n=1,debug=0;
+	char *in = NULL;
+	char *out = NULL;
 	 
-	 //set args
-	 setArgs(argc, argv, &n, &in, &out, &debug);
+	//set args
+	setArgs(argc, argv, &n, &in, &out, &debug);
  
-	 double *matrix;
-	 double *newMatrix;
-	 int rows, cols;
+	double *matrix;
+	double *newMatrix;
+	int rows, cols;
  	
-	 Read_matrix(in, &matrix, &rows, &cols);
+	Read_matrix(in, &matrix, &rows, &cols);
 	
-	 newMatrix = malloc(rows * cols * sizeof(double));
+	newMatrix = malloc(rows * cols * sizeof(double));
 	if (newMatrix == NULL) {
 		fprintf(stderr, "Can't allocate storage\n");
 		exit(-1);
 	}
 	memcpy(newMatrix, matrix, rows * cols * sizeof(double));	 
 	 
-	 if(debug==2){
+	if(debug==2){
 		printf("Iteration 0:\n");
 		Print_matrix(newMatrix,rows,cols);
 		printf("\n");
-	 }
+	}
     
-     GET_TIME(startWork);
+    GET_TIME(startWork);
     
     // Loop iterations
     #pragma omp parallel
@@ -130,35 +130,35 @@
         }
     }
 	 
-	 GET_TIME(finishWork);
+	GET_TIME(finishWork);
  
-	 write_memory_to_file(matrix, rows, cols, out);
+	write_memory_to_file(matrix, rows, cols, out);
 
 	 
  
-	 free(matrix);
-	 if (newMatrix != NULL && newMatrix != matrix) free(newMatrix);
+	free(matrix);
+	if (newMatrix != NULL && newMatrix != matrix) free(newMatrix);
 
-	 GET_TIME(finishOvrll);
+	GET_TIME(finishOvrll);
  
 	 
-	 double overAllTime = finishOvrll-startOvrll;
-	 double workTime = finishWork-startWork;
+	double overAllTime = finishOvrll-startOvrll;
+	double workTime = finishWork-startWork;
   
   
-	 // Open file to write timing data
-	 FILE *timeFile = fopen("openmpTime.csv", "a");
-	 if (!timeFile) {
-		 fprintf(stderr, "Error: Unable to open file 'openmpTime' for writing.\n");
-		 return EXIT_FAILURE;
-	 }
+	// Open file to write timing data
+	FILE *timeFile = fopen("openmpTime.csv", "a");
+	if (!timeFile) {
+		fprintf(stderr, "Error: Unable to open file 'openmpTime' for writing.\n");
+		return EXIT_FAILURE;
+	}
   
-	 // Write the values to the file
-	 fprintf(timeFile, "%d,%d,%d,%f,%f,%d\n", n, rows, cols, overAllTime, workTime, omp_get_max_threads());
+	// Write the values to the file
+	fprintf(timeFile, "%d,%d,%d,%f,%f,%d\n", n, rows, cols, overAllTime, workTime, omp_get_max_threads());
   
-	 // Close the file
-	 fclose(timeFile);
+	// Close the file
+	fclose(timeFile);
  
-	 return 0;
+	return 0;
  
- }
+}

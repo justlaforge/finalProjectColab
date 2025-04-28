@@ -1,7 +1,10 @@
 CC = gcc
+MPICC = mpicc
 PROGS= make-2d print-2d stencil-2d stencil-2d-pth stencil-2d-omp stencil-2d-mpi stencil-2d-hybrid
 CFLAGS = -std=c99 -Wall -g -Wpedantic 
 LFLAGS = -lm -fopenmp -pthread
+MPIFLAGS = -lm -fopenmp -pthread
+
 
 all: $(PROGS)
 
@@ -46,17 +49,17 @@ stencil-2d-omp: stencil-2d-omp.o
 
 	
 stencil-2d-mpi.o: stencil-2d-mpi.c utilities.h utilities.c 
-	$(CC) $(CFLAGS) -c stencil-2d-mpi.c
+	$(MPICC) $(MPIFLAGS) -c stencil-2d-mpi.c
 
 stencil-2d-mpi: stencil-2d-mpi.o 
-	$(CC) -o stencil-2d-mpi ./stencil-2d-mpi.o  $(LFLAGS)
+	$(MPICC) -o stencil-2d-mpi ./stencil-2d-mpi.o  $(MPIFLAGS)
 
 	
 stencil-2d-hybrid.o: stencil-2d-hybrid.c utilities.h utilities.c 
-	$(CC) $(CFLAGS) -c stencil-2d-hybrid.c
+	$(MPICC) $(MPIFLAGS) -c stencil-2d-hybrid.c
 
 stencil-2d-hybrid: stencil-2d-hybrid.o 
-	$(CC) -o stencil-2d-hybrid ./stencil-2d-hybrid.o  $(LFLAGS)
+	$(MPICC) -o stencil-2d-hybrid ./stencil-2d-hybrid.o  $(MPIFLAGS)
 
 
 clean: 
