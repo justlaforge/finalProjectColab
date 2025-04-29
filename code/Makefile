@@ -1,7 +1,7 @@
 CC = gcc
 MPICC = mpicc
 PROGS= make-2d print-2d stencil-2d stencil-2d-pth stencil-2d-omp stencil-2d-mpi stencil-2d-hybrid
-CFLAGS = -std=c99 -Wall -g -Wpedantic 
+CFLAGS = -std=c99 -Wall -g -Wpedantic -D_POSIX_C_SOURCE=200809L
 LFLAGS = -lm -fopenmp -pthread
 MPIFLAGS = -lm -fopenmp -pthread
 
