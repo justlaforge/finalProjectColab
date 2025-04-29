@@ -163,33 +163,24 @@ void* pthread_stencil(void *arg) {
             }
         }
 
-            pthread_barrier_wait(barrier);
-
-            if (id == 0) {
-                double *temp = targs->matrix;
-                targs->matrix = targs->newMatrix;
-                targs->newMatrix = temp;
-            }
-            
-
         pthread_barrier_wait(barrier);
 
-        // Update local matrix pointer after swap
+            double *temp = targs->matrix;
+            targs->matrix = targs->newMatrix;
+            targs->newMatrix = temp;
+      
+    
+        pthread_barrier_wait(barrier);
+    
+        // update local pointers
         matrix = targs->matrix;
         newMatrix = targs->newMatrix;
+            
+        
+    
     }
 
     return NULL;
 }
 
 
-
-/* End of Justin's Section */
-
-//--------------------------
-
-/* Start of Kyle's Section */
-
-
-
-/* End of Kyle's Section */
