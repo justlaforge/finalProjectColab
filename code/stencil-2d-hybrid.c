@@ -218,7 +218,7 @@
          double overAllTime = finishOvrll - startOvrll;
          double workTime = finishWork - startWork;
  
-         FILE *timeFile = fopen("mpiTime.csv", "a");
+         FILE *timeFile = fopen("hybridTime.csv", "a");
          if (timeFile) {
              fprintf(timeFile, "%d,%d,%d,%.6f,%.6f,%d\n", n, rows, cols, overAllTime, workTime, size);
              fclose(timeFile);
