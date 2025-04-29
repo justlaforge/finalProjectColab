@@ -147,7 +147,6 @@ void* pthread_stencil(void *arg) {
     double *matrix = targs->matrix;
     double *newMatrix = targs->newMatrix;
     pthread_barrier_t *barrier = targs->barrier;
-    int debug = targs->debug;
 
     // Divide rows using provided macros
     int local_start = BLOCK_LOW(id, num_threads, rows-2) + 1;  // offset by 1 because of boundary
@@ -160,30 +159,24 @@ void* pthread_stencil(void *arg) {
                     matrix[(i-1) * cols + (j-1)] + matrix[(i-1) * cols + j] + matrix[(i-1) * cols + (j+1)] +
                     matrix[i * cols + (j-1)]     + matrix[i * cols + j]     + matrix[i * cols + (j+1)] +
                     matrix[(i+1) * cols + (j-1)] + matrix[(i+1) * cols + j] + matrix[(i+1) * cols + (j+1)]
-                ) / 9.0; 
+                ) / 9.0;
             }
         }
 
             pthread_barrier_wait(barrier);
 
-        if (id == 0) {
-            double *temp = targs->matrix;
-            targs->matrix = targs->newMatrix;
-            targs->newMatrix = temp;
+            if (id == 0) {
+                double *temp = targs->matrix;
+                targs->matrix = targs->newMatrix;
+                targs->newMatrix = temp;
+            }
             
-        }
 
         pthread_barrier_wait(barrier);
 
         // Update local matrix pointer after swap
         matrix = targs->matrix;
         newMatrix = targs->newMatrix;
-
-        if (debug == 2 && id == 0) {
-            printf("Iteration %d:\n", iter);
-            Print_matrix(matrix, rows, cols);
-            printf("\n");
-        }
     }
 
     return NULL;

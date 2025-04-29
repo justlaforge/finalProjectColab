@@ -24,7 +24,7 @@
  #include <mpi.h>
   
   void usage(char **argv){
-      printf("Usage: %s -n <num iters> -i <in file> -o <out file> -v <debug: 0,1,2>\n", argv[0]);
+      printf("Usage: %s -n <num iters> -i <in file> -o <out file>\n", argv[0]);
   }
   
   // Set arguments
@@ -42,12 +42,6 @@ void setArgs(int argc, char **argv, int *n, char **in, char **out, int *debug){
             case 'o':
                 *out = optarg;
                 break;
-            case 'v':
-                *debug = atoi(optarg);
-                break;
-            // case 'p':
-            // MPI_Comm_size(MPI_COMM_WORLD, &optarg);
-            // break;
         default:
             usage(argv);
             exit(1);
@@ -74,7 +68,7 @@ int main(int argc, char **argv) {
     MPI_Barrier(MPI_COMM_WORLD);
     startOvrll = MPI_Wtime();
 
-    int n=1,debug=0;
+    int n=1;
 	char *in = NULL;
 	char *out = NULL;
 
@@ -122,12 +116,6 @@ int main(int argc, char **argv) {
 
     memcpy(local_newMatrix, local_matrix, local_rows * cols * sizeof(double));
 
-    if (debug == 2 && rank == 0) {
-        printf("Iteration 0:\n");
-        Print_matrix(matrix, rows, cols);
-        printf("\n");
-    }
-
     MPI_Barrier(MPI_COMM_WORLD);
     startWork = MPI_Wtime();
 
@@ -146,15 +134,6 @@ int main(int argc, char **argv) {
         local_matrix = local_newMatrix;
         local_newMatrix = temp;
 
-        if (debug == 2 && rank == 0) {
-            MPI_Gatherv(local_matrix, local_rows * cols, MPI_DOUBLE, matrix, sendcount, displacement, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            printf("Gathered matrix on rank 0 for iteration %d.\n", o);
-            printf("Iteration %d:\n", o);
-            Print_matrix(matrix, rows, cols);
-            printf("\n");
-        } else if (debug == 2) {
-            MPI_Gatherv(local_matrix, local_rows * cols, MPI_DOUBLE, NULL, sendcount, displacement, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        }
 
     }
 
