@@ -135,9 +135,9 @@
     double overAllTime = finishOvrll - startOvrll;
     double workTime = finishWork - startWork;
 
-    FILE *timeFile = fopen("pthreadTime.csv", "a");
+    FILE *timeFile = fopen("pthTime.csv", "a");
     if (!timeFile) {
-        fprintf(stderr, "Error: Unable to open file 'pthreadTime.csv' for writing.\n");
+        fprintf(stderr, "Error: Unable to open file 'pthTime.csv' for writing.\n");
         return EXIT_FAILURE;
     }
 

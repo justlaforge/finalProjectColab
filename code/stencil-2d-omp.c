@@ -91,12 +91,6 @@ int main(int argc, char **argv){
 		exit(-1);
 	}
 	memcpy(newMatrix, matrix, rows * cols * sizeof(double));	 
-	 
-	if(debug==2){
-		printf("Iteration 0:\n");
-		Print_matrix(newMatrix,rows,cols);
-		printf("\n");
-	}
     
     GET_TIME(startWork);
     
@@ -121,11 +115,6 @@ int main(int argc, char **argv){
                 matrix = newMatrix;
                 newMatrix = temp;
 
-                if (debug == 2) {
-                    printf("Iteration %d:\n", o);
-                    Print_matrix(matrix, rows, cols);
-                    printf("\n");
-                }
             }
         }
     }
@@ -147,9 +136,9 @@ int main(int argc, char **argv){
   
   
 	// Open file to write timing data
-	FILE *timeFile = fopen("openmpTime.csv", "a");
+	FILE *timeFile = fopen("ompTime.csv", "a");
 	if (!timeFile) {
-		fprintf(stderr, "Error: Unable to open file 'openmpTime' for writing.\n");
+		fprintf(stderr, "Error: Unable to open file 'ompTime' for writing.\n");
 		return EXIT_FAILURE;
 	}
   

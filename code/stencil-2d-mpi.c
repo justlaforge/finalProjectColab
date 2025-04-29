@@ -169,13 +169,6 @@
                      0, MPI_COMM_WORLD);
      }
  
-     // Output results
-     if (rank == 0) {
-         printf("Resulting matrix:\n");
-         Print_matrix(matrix, rows, cols);
-         write_memory_to_file(matrix, rows, cols, out);
-     }
- 
      // Cleanup
      free(local_matrix);
      free(local_newMatrix);
