@@ -28,6 +28,7 @@
  #include <time.h>
  #include <string.h>
  
+ 
  void usage(char **argv){
 	 printf("Usage: %s -n <num iters> -i <in file> -o <out file> -d <debug: 0,1,2>\n", argv[0]);
  }

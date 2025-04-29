@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <math.h> // For log and power
 #include "utilities.h"
+ #include <pthread.h>
 //#include <mpi.h>
 
 /*-------------------------------------------------------------------
@@ -121,6 +122,72 @@ void write_memory_to_file(double *A, int rows, int cols, char *fname){
 
 
 /* Start of Justin's Section */
+
+typedef struct {
+    int thread_id;
+    int num_threads;
+    int n_iters;
+    int rows;
+    int cols;
+    double *matrix;
+    double *newMatrix;
+    pthread_barrier_t *barrier;
+    int debug;
+ } thread_arg_t;
+
+
+void* pthread_stencil(void *arg) {
+    thread_arg_t *targs = (thread_arg_t*) arg;
+
+    int id = targs->thread_id;
+    int num_threads = targs->num_threads;
+    int n = targs->n_iters;
+    int rows = targs->rows;
+    int cols = targs->cols;
+    double *matrix = targs->matrix;
+    double *newMatrix = targs->newMatrix;
+    pthread_barrier_t *barrier = targs->barrier;
+    int debug = targs->debug;
+
+    // Divide rows using provided macros
+    int local_start = BLOCK_LOW(id, num_threads, rows-2) + 1;  // offset by 1 because of boundary
+    int local_end = BLOCK_HIGH(id, num_threads, rows-2) + 1;
+
+    for (int iter = 1; iter <= n; iter++) {
+        for (int i = local_start; i <= local_end; i++) {
+            for (int j = 1; j < cols-1; j++) {
+                newMatrix[i * cols + j] = (
+                    matrix[(i-1) * cols + (j-1)] + matrix[(i-1) * cols + j] + matrix[(i-1) * cols + (j+1)] +
+                    matrix[i * cols + (j-1)]     + matrix[i * cols + j]     + matrix[i * cols + (j+1)] +
+                    matrix[(i+1) * cols + (j-1)] + matrix[(i+1) * cols + j] + matrix[(i+1) * cols + (j+1)]
+                ) / 9.0; 
+            }
+        }
+
+            pthread_barrier_wait(barrier);
+
+        if (id == 0) {
+            double *temp = targs->matrix;
+            targs->matrix = targs->newMatrix;
+            targs->newMatrix = temp;
+            
+        }
+
+        pthread_barrier_wait(barrier);
+
+        // Update local matrix pointer after swap
+        matrix = targs->matrix;
+        newMatrix = targs->newMatrix;
+
+        if (debug == 2 && id == 0) {
+            printf("Iteration %d:\n", iter);
+            Print_matrix(matrix, rows, cols);
+            printf("\n");
+        }
+    }
+
+    return NULL;
+}
 
 
 
