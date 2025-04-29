@@ -135,6 +135,16 @@ typedef struct {
     int debug;
  } thread_arg_t;
 
+ typedef struct {
+    int start_col;
+    int end_col;
+    int i; // current row
+    int cols;
+    double* local_matrix;
+    double* local_newMatrix;
+} ColumnThreadData;
+
+
 
 void* pthread_stencil(void *arg) {
     thread_arg_t *targs = (thread_arg_t*) arg;
@@ -183,4 +193,16 @@ void* pthread_stencil(void *arg) {
     return NULL;
 }
 
+void* column_worker(void* arg) {
+    ColumnThreadData* data = (ColumnThreadData*)arg;
+    int i = data->i;
 
+    for (int j = data->start_col; j < data->end_col; j++) {
+        data->local_newMatrix[i * data->cols + j] = (
+            data->local_matrix[(i - 1) * data->cols + (j - 1)] + data->local_matrix[(i - 1) * data->cols + j] + data->local_matrix[(i - 1) * data->cols + (j + 1)] +
+            data->local_matrix[i * data->cols + (j - 1)] + data->local_matrix[i * data->cols + j] + data->local_matrix[i * data->cols + (j + 1)] +
+            data->local_matrix[(i + 1) * data->cols + (j - 1)] + data->local_matrix[(i + 1) * data->cols + j] + data->local_matrix[(i + 1) * data->cols + (j + 1)]
+        ) / 9.0;
+    }
+    return NULL;
+}

@@ -140,20 +140,39 @@
          MPI_Waitall(req_count, requests, MPI_STATUSES_IGNORE);
  
          #pragma omp parallel for
-        for (int i = 1; i <= local_rows; i++) {
-            int global_row = i - 1 + rank * (rows / size) + (rank < (rows % size) ? rank : (rows % size));
-            
-            if (global_row == 0 || global_row == rows - 1)
-                continue; // Skip updating first and last rows globally
-
-            for (int j = 1; j < cols - 1; j++) {
-                local_newMatrix[i * cols + j] = (
-                    local_matrix[(i - 1) * cols + (j - 1)] + local_matrix[(i - 1) * cols + j] + local_matrix[(i - 1) * cols + (j + 1)] +
-                    local_matrix[i * cols + (j - 1)] + local_matrix[i * cols + j] + local_matrix[i * cols + (j + 1)] +
-                    local_matrix[(i + 1) * cols + (j - 1)] + local_matrix[(i + 1) * cols + j] + local_matrix[(i + 1) * cols + (j + 1)]
-                ) / 9.0;
-            }
-        }
+         for (int i = 1; i <= local_rows; i++) {
+             int global_row = i - 1 + rank * (rows / size) + (rank < (rows % size) ? rank : (rows % size));
+             if (global_row == 0 || global_row == rows - 1)
+                 continue;
+         
+             pthread_t pthreads[p]; // launch p threads for each row
+             ColumnThreadData thread_data[p];
+         
+             int chunk_size = (cols - 2) / p; // split [1, cols-2] columns among p threads
+             int extra = (cols - 2) % p;
+         
+             int col_start = 1;
+         
+             for (int t = 0; t < p; t++) {
+                 int col_end = col_start + chunk_size + (t < extra ? 1 : 0);
+         
+                 thread_data[t] = (ColumnThreadData){
+                     .start_col = col_start,
+                     .end_col = col_end,
+                     .i = i,
+                     .cols = cols,
+                     .local_matrix = local_matrix,
+                     .local_newMatrix = local_newMatrix
+                 };
+         
+                 pthread_create(&pthreads[t], NULL, column_worker, &thread_data[t]);
+                 col_start = col_end;
+             }
+         
+             for (int t = 0; t < p; t++) {
+                 pthread_join(pthreads[t], NULL);
+             }
+         }
         
 
  
