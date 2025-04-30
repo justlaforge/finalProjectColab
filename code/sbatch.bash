@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Define the matrix sizes and thread counts
-N_values=8
-C_values=(5000 10000 20000 40000)  # rows and columns
-P_values=(1 2 4 8) # 16  32 64 128)
+N_values=14
+C_values=(5000 10000) # 20000 40000)  # rows and columns
+P_values=(1 2 4 8 16) # 32 64 128)
 
 # Clear Output CSV files
 > serialTime.csv
@@ -18,11 +18,11 @@ MPI_FILE="mpiTime.csv"
 HYBRID_FILE="hybridTime.csv"
 
 # Ensure the CSV files have headers
-echo "Iterations, Rows, Cols, OverallTime, WorkTime" > $SERIAL_FILE
-echo "Iterations, Rows, Cols, OverallTime, WorkTime, Processors" > $PTHREADS_FILE
-echo "Iterations, Rows, Cols, OverallTime, WorkTime, Processors" > $OMP_FILE
-echo "Iterations, Rows, Cols, OverallTime, WorkTime, Processors" > $MPI_FILE
-echo "Iterations, Rows, Cols, OverallTime, WorkTime, Processors" > $HYBRID_FILE
+echo "Iterations, Rows, Cols, OverallTime, WorkTime, DiffTime," > $SERIAL_FILE
+echo "Iterations, Rows, Cols, OverallTime, WorkTime, DiffTime, Processors" > $PTHREADS_FILE
+echo "Iterations, Rows, Cols, OverallTime, WorkTime, DiffTime, Processors" > $OMP_FILE
+echo "Iterations, Rows, Cols, OverallTime, WorkTime, DiffTime, Processors" > $MPI_FILE
+echo "Iterations, Rows, Cols, OverallTime, WorkTime, DiffTime, Processors" > $HYBRID_FILE
 
 # Compile files
 make
@@ -32,17 +32,14 @@ for C in "${C_values[@]}"; do
     ./make-2d A.bin $C
 
     echo "Running serial version for C=$C with N=${N_values} iterations."
-    ./stencil-2d -n 8 -i A.bin -o C.bin
+    ./stencil-2d -n $N_values -i A.bin -o C.bin
 
     for P in "${P_values[@]}"; do
         echo "Running Pthreads version for C=$C, P=$P with N=${N_values} iterations."
-        ./stencil-2d-pth -n 8 -i A.bin -o C.bin -p $P
+        ./stencil-2d-pth -n $N_values -i A.bin -o C.bin -p $P
 
         echo "Running OpenMP version for C=$C, P=$P with N=${N_values} iterations."
-        ./stencil-2d-omp -n 8 -i A.bin -o C.bin -p $P
-
-        echo "Running MPI version for C=$C, P=$P with N=${N_values} iterations."
-        mpirun -np $P ./stencil-2d-mpi -n 8 -i A.bin -o C.bin 
+        ./stencil-2d-omp -n $N_values -i A.bin -o C.bin -p $P
 
         # Split processors between -np and -p
         if [ $P -eq 1 ]; then
@@ -53,12 +50,14 @@ for C in "${C_values[@]}"; do
             PP=2
         fi
 
+        echo "Running MPI version for C=$C, P=$P with N=${N_values} iterations."
+        mpirun -np $NP ./stencil-2d-mpi -n $N_values -i A.bin -o C.bin 
+
         echo "Running Hybrid MPI version for C=$C, P=$P with N=${N_values} iterations."
-        mpirun -np $NP ./stencil-2d-hybrid -n 8 -i A.bin -o C.bin -p $PP
-    done
+        mpirun -np $NP ./stencil-2d-hybrid -n $N_values -i A.bin -o C.bin -p $PP
     done
 done
 
 make clean
 
-echo "Experiment complete. Results stored in $SERIAL_FILE, $PTHREADS_FILE, $OMP_FILE, $MPI_FILE."
+echo "Experiment complete. Results stored in $SERIAL_FILE, $PTHREADS_FILE, $OMP_FILE, $MPI_FILE, $HYBRID_FILE."

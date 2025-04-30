@@ -185,10 +185,11 @@
      if (rank == 0) {
          double overAllTime = finishOvrll - startOvrll;
          double workTime = finishWork - startWork;
+         double diffTime = overAllTime - workTime;
  
          FILE *timeFile = fopen("mpiTime.csv", "a");
          if (timeFile) {
-             fprintf(timeFile, "%d,%d,%d,%.6f,%.6f,%d\n", n, rows, cols, overAllTime, workTime, size);
+             fprintf(timeFile, "%d,%d,%d,%.6f,%.6f,%.6f,%d\n", n, rows, cols, overAllTime, workTime, diffTime, size);
              fclose(timeFile);
          } else {
              fprintf(stderr, "Error: Unable to open file 'mpiTime.csv' for writing.\n");

@@ -144,7 +144,7 @@
 	 
 	 double overAllTime = finishOvrll-startOvrll;
 	 double workTime = finishWork-startWork;
-  
+	 double diffTime = overAllTime - workTime;
   
 	 // Open file to write timing data
 	 FILE *timeFile = fopen("serialTime.csv", "a");
@@ -154,7 +154,7 @@
 	 }
   
 	 // Write the values to the file
-	 fprintf(timeFile, "%d,%d,%d,%f,%f\n", n, rows, cols, overAllTime, workTime);
+	 fprintf(timeFile, "%d,%d,%d,%.6f,%.6f,%.6f,%d\n", n, rows, cols, overAllTime, workTime, diffTime, 1);
   
 	 // Close the file
 	 fclose(timeFile);

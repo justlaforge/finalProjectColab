@@ -134,6 +134,7 @@
 
     double overAllTime = finishOvrll - startOvrll;
     double workTime = finishWork - startWork;
+	double diffTime = overAllTime - workTime;
 
     FILE *timeFile = fopen("pthTime.csv", "a");
     if (!timeFile) {
@@ -141,7 +142,7 @@
         return EXIT_FAILURE;
     }
 
-    fprintf(timeFile, "%d,%d,%d,%f,%f\n", n, rows, cols, overAllTime, workTime);
+    fprintf(timeFile, "%d,%d,%d,%.6f,%.6f,%.6f,%d\n", n, rows, cols, overAllTime, workTime, diffTime, NUM_THREADS);
     fclose(timeFile);
 
     return 0;

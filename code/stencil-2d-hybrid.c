@@ -5,7 +5,7 @@
  *
  * Purpose:  Perform stencil simulation using MPI for parallization
  *
- * Run:      ./stencil-2d-mpi.c -t <num iters> -i <in> -o <out> -p <num process>
+ * Run:      mpirun -np <num processors> ./stencil-2d-mpi.c -t <num iters> -i <in> -o <out> -p <num threads>
  *
  * Input:    Binary file with stencil matrix
  * 
@@ -217,10 +217,14 @@
      if (rank == 0) {
          double overAllTime = finishOvrll - startOvrll;
          double workTime = finishWork - startWork;
+         double diffTime = overAllTime - workTime;
  
+         int totalThreads = p * size; // Total threads across all processes
+
+
          FILE *timeFile = fopen("hybridTime.csv", "a");
          if (timeFile) {
-             fprintf(timeFile, "%d,%d,%d,%.6f,%.6f,%d\n", n, rows, cols, overAllTime, workTime, size);
+             fprintf(timeFile, "%d,%d,%d,%.6f,%.6f,%.6f,%d\n", n, rows, cols, overAllTime, workTime, diffTime, totalThreads);
              fclose(timeFile);
          } else {
              fprintf(stderr, "Error: Unable to open file 'mpiTime.csv' for writing.\n");

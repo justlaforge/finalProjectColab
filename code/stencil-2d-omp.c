@@ -133,7 +133,7 @@ int main(int argc, char **argv){
 	 
 	double overAllTime = finishOvrll-startOvrll;
 	double workTime = finishWork-startWork;
-  
+	double diffTime = overAllTime - workTime;
   
 	// Open file to write timing data
 	FILE *timeFile = fopen("ompTime.csv", "a");
@@ -143,7 +143,7 @@ int main(int argc, char **argv){
 	}
   
 	// Write the values to the file
-	fprintf(timeFile, "%d,%d,%d,%f,%f,%d\n", n, rows, cols, overAllTime, workTime, omp_get_max_threads());
+	fprintf(timeFile, "%d,%d,%d,%f,%f,%.6f,%d\n", n, rows, cols, overAllTime, workTime, diffTime, omp_get_max_threads());
   
 	// Close the file
 	fclose(timeFile);
