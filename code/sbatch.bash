@@ -1,8 +1,25 @@
 #!/bin/bash
+#SBATCH --job-name="stencil_serial"
+#SBATCH --output="stencil_serial.%j.%N.out"
+#SBATCH --partition=compute
+#SBATCH --nodes=8
+#SBATCH --ntasks-per-node=2
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=20GB
+#SBATCH --account=ccu108
+#SBATCH --export=ALL
+#SBATCH -t 00:90:00
+
+module purge
+module load cpu
+module load slurm
+module load gcc/10.2.0
+module load openmpi/4.1.3
+module load mpip/3.5
 
 # Define the matrix sizes and thread counts
 N_values=14
-C_values=(5000 10000) # 20000 40000)  # rows and columns
+C_values=(5000 10000 20000 40000)  # rows and columns
 P_values=(1 2 4 8 16) # 32 64 128)
 
 # Clear Output CSV files
